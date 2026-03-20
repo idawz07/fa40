@@ -1372,6 +1372,16 @@ Post-Injector Replacement - Inspection and Test</div>
         window.addEventListener('resize', update);
       }
 
+      function isNativeShell() {
+        var cap = window.Capacitor;
+        if (cap && typeof cap.isNativePlatform === 'function') {
+          try {
+            return !!cap.isNativePlatform();
+          } catch (e) {}
+        }
+        return !!(window.webkit && window.webkit.messageHandlers);
+      }
+
       document.addEventListener('DOMContentLoaded', function () {
         loadChecklist();
         if (checklistEl) {
@@ -1395,7 +1405,7 @@ Post-Injector Replacement - Inspection and Test</div>
         }
       });
 
-      if ('serviceWorker' in navigator) {
+      if ('serviceWorker' in navigator && !isNativeShell()) {
         window.addEventListener('load', function () {
           navigator.serviceWorker.register('./sw.js').catch(function () {});
         });
