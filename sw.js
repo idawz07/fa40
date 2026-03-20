@@ -1,5 +1,5 @@
 const CACHE_PREFIX = 'fh-guide-';
-const CACHE_VERSION = 'fh-guide-v8';
+const CACHE_VERSION = 'fh-guide-v9';
 const INDEX_URL = new URL('./index.html', self.location).href;
 const PRECACHE = [
   './index.html',
@@ -33,6 +33,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
+  const url = new URL(req.url);
 
   if (req.mode === 'navigate') {
     event.respondWith(
@@ -43,13 +44,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  if (url.origin !== self.location.origin) return;
+
   event.respondWith(
-    caches.match(req).then((hit) => {
-      if (hit) return hit;
-      return fetch(req).then(
-        (res) => res,
-        () => caches.match(INDEX_URL)
-      );
-    })
+    caches.match(req).then((hit) => hit || fetch(req))
   );
 });
